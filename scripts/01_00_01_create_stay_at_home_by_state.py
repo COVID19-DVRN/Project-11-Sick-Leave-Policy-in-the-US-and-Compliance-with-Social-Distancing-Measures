@@ -7,6 +7,14 @@ import numpy as np
 output_code = "01_00_01"
 now = datetime.datetime.now().strftime("%Y%m%d")
 # %%
+df_state_name_code_abbrev = pd.read_csv("../inputs/raw/state_code_abbr_fullname.csv")
+state_code_to_state_name = df_state_name_code_abbrev.set_index("state_code").to_dict()["state_name"]
+state_code_to_state_abbrev = df_state_name_code_abbrev.set_index("state_code").to_dict()["state_abbrev"]
+state_name_to_state_code = {v:k for k,v in state_code_to_state_name.items()}
+# %%
+######################
+## Reading the us state policies
+######################
 df = pd.read_csv("../inputs/raw/USstatesCov19distancingpolicy.csv",encoding='latin1')
 # %%
 columns_keeping = ["StatePostal","StateName","StatePolicy","DateIssued","DateEnacted","DateExpiry","StateWide","PolicyCodingNotes","PolicySource"]
@@ -29,6 +37,9 @@ stay_at_home_by_state_code = {k: datetime.datetime.strptime(str(int(v)),"%Y%m%d"
 ## stay at home order
 
 # %%
+######################
+## Reading the unacast social distancing metric data for states
+######################
 ## Now read the Uncast file first
 df_unacast_state = pd.read_csv("../inputs/raw/untracked/unacast_20200409/0409_sds_full_state.csv")
 df_unacast_state["date_converted"] = df_unacast_state["date"].apply(lambda x: datetime.datetime.strptime(x,"%m/%d/%y"))
@@ -82,9 +93,42 @@ for i,current_state in enumerate(state_codes):
     ax.set_ylim(-1,0.3)
     #ax.set_xticks(rotation='vertical')
 fig.tight_layout()
-plt.savefig("../outputs/figures/%s_state_wise_distance_change_unacast%s.pdf" %(output_code,now))
+plt.savefig("../outputs/figures/%s_state_wise_distance_change_unacast_%s.pdf" %(output_code,now))
 plt.show()
 
+# %%
+######################
+## Reading the NYTimes covid-19 cases and death data
+######################
+df_nytimes = pd.read_csv("../inputs/raw/nytimes-covid19-daily-cases-deaths-us-states.csv")
+df_nytimes["state_code"] = df_nytimes["state"].apply(lambda x: state_name_to_state_code[x] if x in state_name_to_state_code else None)
+df_nytimes["date_converted"] = df_nytimes["date"].apply(lambda x: datetime.datetime.strptime(x,"%Y-%m-%d"))
+# %%
+def get_deaths_and_cases_on_intervention_date(date_low,current_state,df_nytimes=df_nytimes):
+    #df_nytimes_single_state = df_nytimes[df_nytimes["state_code"] == current_state]
+    cumulative_cases_at_intervention_date = 0
+    cumulative_deaths_at_intervention_date = 0
+    new_cases_throghout_week_before_intervention = 0
+    new_deaths_throghout_week_before_intervention = 0
+    current_state_cumulative_at_intervention = df_nytimes[(df_nytimes["state_code"] == current_state) & (df_nytimes["date_converted"]==date_low)]
+    ## If we have cases in the file in the intervention date then we will update it
+    if not current_state_cumulative_at_intervention.empty:
+        cumulative_cases_at_intervention_date = current_state_cumulative_at_intervention["cases"].item()
+        cumulative_deaths_at_intervention_date = current_state_cumulative_at_intervention["deaths"].item()
+        
+        ## For now we will think that the cumulative cases upto this week happened
+        ## on this week.
+        ## But if there is a row that belongs to the week before then we will subtract the
+        ## cumulative cases the week before    
+        new_cases_throghout_week_before_intervention = cumulative_cases_at_intervention_date
+        new_deaths_throghout_week_before_intervention = cumulative_deaths_at_intervention_date
+        ## If we have the cases at intevention data and even the cases a week before intervention 
+        ## then we will subtract the cases on that day to get weekly new cases and deaths
+        current_state_cumulative_at_week_before_intervention = df_nytimes[(df_nytimes["state_code"] == current_state) & (df_nytimes["date_converted"]==(date_low - datetime.timedelta(days=7)))]
+        if not current_state_cumulative_at_week_before_intervention.empty:
+            new_cases_throghout_week_before_intervention -=  current_state_cumulative_at_week_before_intervention["cases"].item()
+            new_deaths_throghout_week_before_intervention -= current_state_cumulative_at_week_before_intervention["deaths"].item()
+    return cumulative_cases_at_intervention_date, cumulative_deaths_at_intervention_date, new_cases_throghout_week_before_intervention, new_deaths_throghout_week_before_intervention
 # %%
 ## Now creating three actual values for each state.
 ## Average of change in average distance travelled on Mar 19th and a week later
@@ -100,17 +144,12 @@ plt.show()
 ## For the states that have mandated statewide Stay at home order
 ## the average of the week after
 
-avg_change_avg_distance_week_after_family_first_pass = dict()
-avg_change_avg_distance_week_after_state_emergenecy = dict()
-avg_change_avg_distance_week_after_state_neb_closure = dict()
-avg_change_avg_distance_week_after_state_stay_at_home = dict()
-
 writelines = []
-writelines.append(",".join(["state_code","federal_family_first_act_date","weekly_avg_change_in_avg_distance_after_federal_ff_act","weekly_avg_change_in_visitation_after_federal_ff_act","weekly_avg_change_in_encounter_after_federal_ff_act",\
-              "state_emerg_date","weekly_avg_change_in_avg_distance_after_state_emerg","weekly_avg_change_in_visitation_after_state_emerg","weekly_avg_change_in_encounter_after_state_emerg",\
-                "statewide_neb_closure_date","weekly_avg_change_in_avg_distance_after_neb_closure","weekly_avg_change_in_visitation_after_neb_closure","weekly_avg_change_in_encounter_after_neb_closure",\
-                "statewide_stay_at_home_date","weekly_avg_change_in_avg_distance_after_stay_at_home_order","weekly_avg_change_in_visitation_after_stay_at_home_order","weekly_avg_change_in_encounter_after_stay_at_home_order"]))
-current_state = "NY"
+writelines.append(",".join(["state_code","federal_family_first_act_date","cumulative_cases_at_ff_act","cumulative_deaths_at_ff_act","new_cases_since_week_before_ff_act","new_death_since_week_before_ff_act","weekly_avg_change_in_avg_distance_after_federal_ff_act","weekly_avg_change_in_visitation_after_federal_ff_act","weekly_avg_change_in_encounter_after_federal_ff_act",\
+              "state_emerg_date","cumulative_cases_at_state_emerg","cumulative_deaths_at_state_emerg","new_cases_since_week_before_state_emerg","new_death_since_week_before_state_emerg","weekly_avg_change_in_avg_distance_after_state_emerg","weekly_avg_change_in_visitation_after_state_emerg","weekly_avg_change_in_encounter_after_state_emerg",\
+                "statewide_neb_closure_date","cumulative_cases_at_neb_closure","cumulative_deaths_at_neb_closure","new_cases_since_week_before_neb_closure","new_death_since_week_before_neb_closure","weekly_avg_change_in_avg_distance_after_neb_closure","weekly_avg_change_in_visitation_after_neb_closure","weekly_avg_change_in_encounter_after_neb_closure",\
+                "statewide_stay_at_home_date","cumulative_cases_at_stay_at_home_order","cumulative_deaths_at_stay_at_home_order","new_cases_since_week_before_stay_at_home_order","new_death_since_week_before_stay_at_home_order","weekly_avg_change_in_avg_distance_after_stay_at_home_order","weekly_avg_change_in_visitation_after_stay_at_home_order","weekly_avg_change_in_encounter_after_stay_at_home_order"]))
+
 for current_state in sorted(df_unacast_state.state_code.unique()):
     df_unacast_single_state = df_unacast_state[df_unacast_state["state_code"]==current_state]
     important_dates = {}
@@ -130,19 +169,25 @@ for current_state in sorted(df_unacast_state.state_code.unique()):
     current_state_writeline.append(current_state)
     for intervention_type in ["federal_family_first_act","state_emergency",\
                               "statewide_neb_closure","statewide_stay_at_home"]:
-        if intervention_type in important_dates:
+        
+        if intervention_type in important_dates:            
             #print(intervention_type)
             current_state_writeline.append(important_dates[intervention_type].strftime("%Y%m%d"))
             date_low = important_dates[intervention_type]
+            ## First putting the cumulative case and deaths on intervention date
+            ## and the new cases since one week before the intervention date
+            current_state_writeline.extend(map(str,get_deaths_and_cases_on_intervention_date(date_low, current_state, df_nytimes)))
+            
+            ## Now putting the effects after interventions date
             date_high_inclusive = date_low + datetime.timedelta(days = 7)
             #print(df_unacast_single_state[(df_unacast_single_state["date_converted"] > date_low) & (df_unacast_single_state["date_converted"] <= date_high_inclusive)])
             mean_values = df_unacast_single_state[(df_unacast_single_state["date_converted"] > date_low) & (df_unacast_single_state["date_converted"] <= date_high_inclusive)].mean()
             for metric in ["travel_distance_metric","visitation_metric","encounters_metric"]:
                 current_state_writeline.append(str(mean_values[metric]))
         else:
-            current_state_writeline.extend(["NA","NA","NA","NA"])
-
+            current_state_writeline.extend(["nan","nan","nan","nan","nan","nan","nan","nan"])
+            
     writelines.append(",".join(current_state_writeline))
-    
+
 with open("../inputs/derived/%s_after_intervention_avg_metric_change_unacast_by_state.csv" %output_code, "w") as f:
     f.writelines("\n".join(writelines))

@@ -4,8 +4,14 @@ https://github.com/COVID19StatePolicy/SocialDistancing/blob/master/data/USstates
 citation:
 Nancy Fullman, Bree Bang-Jensen, Kenya Amano, Christopher Adolph, and John Wilkerson. "State-level social distancing policies in response to COVID-19 in the US". Version 1.14, April 10, 2020. http://www.covid19statepolicy.org
 
+
 https://www.nytimes.com/interactive/2020/us/coronavirus-stay-at-home-order.html
 https://www.finra.org/rules-guidance/key-topics/covid-19/shelter-in-place
 
 County and city level data:
 https://github.com/jataware/covid-19-data
+
+
+state level covid-19 cases and deaths data
+https://github.com/nytimes/covid-19-data/blob/master/us-states.csv
+Accessed: April 12, 2020
