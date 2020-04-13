@@ -1,0 +1,77 @@
+---
+title: 'Project 11: Sick Leave Policy'
+author: "Samia B"
+date: "4/18/2020"
+output: 
+  html_document:
+    toc_float: true
+    code_folding: show
+  
+  
+---
+
+```{r, results='hide', warning=FALSE, message=FALSE}
+#libraries
+library(tidyverse)
+library(ggplot2)
+library(DT)
+```
+
+```{r}
+#data 
+merged_data<-read.csv("~/GitHub/Project 11-COVID/outputs/data/merged_data.csv")
+```
+
+```{r}
+#First ten entries
+datatable(merged_data)
+```
+
+```{r}
+# In the data, the Dominant Sector BLS Variable contains 2 categories that are identical (with difference being & and 'and'). Condense them to make them 1 category
+levels(merged_data$Dominant.Sector..BLS..Feb..2020.)
+levels(merged_data$Dominant.Sector..BLS..Feb..2020.)<-c("1","2","3","4","5","6","6")
+
+merged_data$Dominant.Sector..BLS..Feb..2020.<-factor(merged_data$Dominant.Sector..BLS..Feb..2020.,labels=c("Education & Health Services", "Government", "Leisure & Hospitality", "Manufacturing", "Professional & Business Services", "Trade, Transportation & Utilities"))
+```
+
+# Plots
+
+## Change in Distance per Dominant Sector after Federal FF Act
+```{r}
+ggplot()+
+  geom_col(data=merged_data,aes(x=Dominant.Sector..BLS..Feb..2020., y=weekly_avg_change_in_avg_distance_after_federal_ff_act))+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle=90))+
+  labs(title="Change in Distance per Dominant Sector after Federal FF Act")+
+  xlab("Dominant Sector per BLS Feb 2020")+
+  ylab("Weekly Avg Change in Distance after Federal FF Act")
+```
+
+## Change in Distance per Type of Industry after Federal FF Act
+```{r}
+ggplot()+
+  geom_col(data=merged_data,aes(x=Type.of.Industry, y=weekly_avg_change_in_avg_distance_after_federal_ff_act))+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle=90))+
+  labs(title="Change in Distance per Type of Industry after Federal FF Act")+
+  xlab("Type of Industry")+
+  ylab("Weekly Avg Change in Distance after Federal FF Act")
+```
+
+## Change in Distance
+```{r}
+ggplot()+
+  geom_col(data=merged_data, aes(x=Paid.Family.Leave, y=weekly_avg_change_in_avg_distance_after_federal_ff_act, fill=Paid.Family.Leave))+theme_minimal()
+```
+
+```{r}
+ggplot()+
+  geom_col(data=merged_data, aes(x=Paid.Family.Leave, y=weekly_avg_change_in_visitation_after_federal_ff_act, fill=Paid.Family.Leave))+theme_minimal()
+```
+
+```{r}
+ggplot()+
+  geom_col(data=merged_data, aes(x=Paid.Family.Leave, y=weekly_avg_change_in_encounter_after_federal_ff_act, fill=Paid.Family.Leave))+theme_minimal()
+```
+

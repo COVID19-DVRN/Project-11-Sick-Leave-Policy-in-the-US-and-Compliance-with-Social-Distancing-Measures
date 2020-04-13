@@ -1,0 +1,1 @@
+rmarkdown::render(input="~/GitHub/Project 11-COVID/scripts/Descriptive_Analysis.Rmd", output_dir ="~/GitHub/Project 11-COVID/outputs", output_file="Descriptive_Analysis.html" )
