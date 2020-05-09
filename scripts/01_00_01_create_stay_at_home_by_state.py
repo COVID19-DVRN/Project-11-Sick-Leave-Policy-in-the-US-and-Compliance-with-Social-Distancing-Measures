@@ -22,7 +22,7 @@ df = df.loc[:,columns_keeping]
 # %%
 df_stay_at_home_neb_closure = df[df["StatePolicy"].isin(["StayAtHome","NEBusinessClose","EmergDec"])]
 # %%
-## So I learnt that when StateWide is 1 then the policy is statewide
+## So I learnt that when StateWide is 1 then the policy is statewide"
 df_stay_at_home_neb_closure_statewide = df_stay_at_home_neb_closure[ (df_stay_at_home_neb_closure["StateWide"]==1)]
 df_stay_at_home_neb_closure_statewide.set_index("StatePostal").to_csv("../inputs/derived/%s_stay_at_home_statewide_dates.csv" %(output_code))
 df_neb_closure = df_stay_at_home_neb_closure_statewide[df_stay_at_home_neb_closure_statewide["StatePolicy"]=="NEBusinessClose"]
@@ -41,9 +41,10 @@ stay_at_home_by_state_code = {k: datetime.datetime.strptime(str(int(v)),"%Y%m%d"
 ## Reading the unacast social distancing metric data for states
 ######################
 ## Now read the Uncast file first
-df_unacast_state = pd.read_csv("../inputs/raw/untracked/unacast_20200409/0409_sds_full_state.csv")
-df_unacast_state["date_converted"] = df_unacast_state["date"].apply(lambda x: datetime.datetime.strptime(x,"%m/%d/%y"))
-df_unacast_state["date_simple_string"] = df_unacast_state["date"].apply(lambda x: datetime.datetime.strftime(datetime.datetime.strptime(x,"%m/%d/%y"),"%Y%m%d"))
+unacast_date_format = "%Y-%m-%d"
+df_unacast_state = pd.read_csv("../inputs/raw/untracked/unacast_20200509/sds-v3-full-state.csv")
+df_unacast_state["date_converted"] = df_unacast_state["date"].apply(lambda x: datetime.datetime.strptime(x,unacast_date_format))
+df_unacast_state["date_simple_string"] = df_unacast_state["date"].apply(lambda x: datetime.datetime.strftime(datetime.datetime.strptime(x,unacast_date_format),"%Y%m%d"))
 # %%
 
 current_state = "MN"
@@ -51,7 +52,7 @@ df_unacast_single_state = df_unacast_state[df_unacast_state["state_code"]==curre
 df = df_unacast_single_state
 df = df.sort_values('date_converted', ascending=True)
 fig,ax = plt.subplots(1,1,figsize = (20,5))
-ax.plot(df['date_converted'], df['travel_distance_metric'])
+ax.plot(df['date_converted'], df['daily_distance_diff'])
 if current_state in emerg_dec_by_state_code:
     current_state_emerg_dec = emerg_dec_by_state_code[current_state]
     ax.axvline(current_state_emerg_dec, color = "red")
@@ -186,7 +187,7 @@ for current_state in sorted(df_unacast_state.state_code.unique()):
             date_high_inclusive = date_low + datetime.timedelta(days = 7)
             #print(df_unacast_single_state[(df_unacast_single_state["date_converted"] > date_low) & (df_unacast_single_state["date_converted"] <= date_high_inclusive)])
             mean_values = df_unacast_single_state[(df_unacast_single_state["date_converted"] > date_low) & (df_unacast_single_state["date_converted"] <= date_high_inclusive)].mean()
-            for metric in ["travel_distance_metric","visitation_metric","encounters_metric"]:
+            for metric in ["daily_distance_diff","daily_visitation_diff","encounters_rate"]:
                 current_state_writeline.append(str(mean_values[metric]))
         else:
             current_state_writeline.extend(["nan","nan","nan","nan","nan","nan","nan","nan"])
