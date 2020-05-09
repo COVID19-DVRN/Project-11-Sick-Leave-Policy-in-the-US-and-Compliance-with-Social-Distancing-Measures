@@ -150,10 +150,14 @@ def get_deaths_and_cases_on_intervention_date(date_low,current_state,df_nytimes=
 ## the average of the week after
 
 writelines = []
-writelines.append(",".join(["state_code","federal_family_first_act_date","cumulative_cases_at_ff_act","cumulative_deaths_at_ff_act","new_cases_since_week_before_ff_act","new_death_since_week_before_ff_act","weekly_avg_change_in_avg_distance_after_federal_ff_act","weekly_avg_change_in_visitation_after_federal_ff_act","weekly_avg_change_in_encounter_after_federal_ff_act",\
-              "state_emerg_date","cumulative_cases_at_state_emerg","cumulative_deaths_at_state_emerg","new_cases_since_week_before_state_emerg","new_death_since_week_before_state_emerg","weekly_avg_change_in_avg_distance_after_state_emerg","weekly_avg_change_in_visitation_after_state_emerg","weekly_avg_change_in_encounter_after_state_emerg",\
-                "statewide_neb_closure_date","cumulative_cases_at_neb_closure","cumulative_deaths_at_neb_closure","new_cases_since_week_before_neb_closure","new_death_since_week_before_neb_closure","weekly_avg_change_in_avg_distance_after_neb_closure","weekly_avg_change_in_visitation_after_neb_closure","weekly_avg_change_in_encounter_after_neb_closure",\
-                "statewide_stay_at_home_date","cumulative_cases_at_stay_at_home_order","cumulative_deaths_at_stay_at_home_order","new_cases_since_week_before_stay_at_home_order","new_death_since_week_before_stay_at_home_order","weekly_avg_change_in_avg_distance_after_stay_at_home_order","weekly_avg_change_in_visitation_after_stay_at_home_order","weekly_avg_change_in_encounter_after_stay_at_home_order"]))
+columns = ["state_code"]
+npi_interventions = ["federal_family_first_act","state_emergency",\
+                     "statewide_neb_closure","statewide_stay_at_home"]
+for current_npi_intervention in npi_interventions:
+    current_npi_intervention = "federal_family_first_act"
+    current_npi_intervention_columns = ["%s_date"  %current_npi_intervention, "cumulative_cases_at_%s" %current_npi_intervention,"cumulative_deaths_at_%s" %current_npi_intervention, "new_cases_since_week_before_%s"%current_npi_intervention, "new_death_since_week_before_%s" %current_npi_intervention,"weekly_avg_change_in_avg_distance_after_%s" %current_npi_intervention, "weekly_avg_change_in_visitation_after_%s" %current_npi_intervention , "weekly_avg_encounter_after_%s" %current_npi_intervention]
+    columns.extend(current_npi_intervention_columns)
+writelines.append(",".join(columns))
 
 for current_state in sorted(df_unacast_state.state_code.unique()):
     df_unacast_single_state = df_unacast_state[df_unacast_state["state_code"]==current_state]
@@ -172,8 +176,7 @@ for current_state in sorted(df_unacast_state.state_code.unique()):
     
     current_state_writeline = []
     current_state_writeline.append(current_state)
-    for intervention_type in ["federal_family_first_act","state_emergency",\
-                              "statewide_neb_closure","statewide_stay_at_home"]:
+    for intervention_type in npi_interventions:
         
         if intervention_type in important_dates:            
             #print(intervention_type)
