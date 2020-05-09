@@ -154,7 +154,6 @@ columns = ["state_code"]
 npi_interventions = ["federal_family_first_act","state_emergency",\
                      "statewide_neb_closure","statewide_stay_at_home"]
 for current_npi_intervention in npi_interventions:
-    current_npi_intervention = "federal_family_first_act"
     current_npi_intervention_columns = ["%s_date"  %current_npi_intervention, "cumulative_cases_at_%s" %current_npi_intervention,"cumulative_deaths_at_%s" %current_npi_intervention, "new_cases_since_week_before_%s"%current_npi_intervention, "new_death_since_week_before_%s" %current_npi_intervention,"weekly_avg_change_in_avg_distance_after_%s" %current_npi_intervention, "weekly_avg_change_in_visitation_after_%s" %current_npi_intervention , "weekly_avg_encounter_after_%s" %current_npi_intervention]
     columns.extend(current_npi_intervention_columns)
 writelines.append(",".join(columns))
