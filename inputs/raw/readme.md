@@ -1,8 +1,9 @@
 ## Data sources
 ### state level NPI data
+USstatesCov19distancingpolicy.csv
 https://github.com/COVID19StatePolicy/SocialDistancing/blob/master/data/USstatesCov19distancingpolicy.csv
 citation:
-Nancy Fullman, Bree Bang-Jensen, Kenya Amano, Christopher Adolph, and John Wilkerson. "State-level social distancing policies in response to COVID-19 in the US". Version 1.14, April 10, 2020. http://www.covid19statepolicy.org
+Nancy Fullman, Bree Bang-Jensen, Kenya Amano, Christopher Adolph, and John Wilkerson. "State-level social distancing policies in response to COVID-19 in the US". Version 1.14, May 9, 2020. http://www.covid19statepolicy.org
 
 ### state level covid-19 cases and deaths data
 https://github.com/nytimes/covid-19-data/blob/master/us-states.csv
