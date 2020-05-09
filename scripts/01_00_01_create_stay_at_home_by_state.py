@@ -55,23 +55,24 @@ fig,ax = plt.subplots(1,1,figsize = (20,5))
 ax.plot(df['date_converted'], df['daily_distance_diff'])
 if current_state in emerg_dec_by_state_code:
     current_state_emerg_dec = emerg_dec_by_state_code[current_state]
-    ax.axvline(current_state_emerg_dec, color = "red")
+    ax.axvline(current_state_emerg_dec, color = "red", label = "state emergency")
 if current_state in stay_at_home_by_state_code:
     current_state_stay_at_home = stay_at_home_by_state_code[current_state]
-    ax.axvline(current_state_stay_at_home, color = "orange")
+    ax.axvline(current_state_stay_at_home, color = "orange", label = "stay at home order")
 if current_state in neb_closure_by_state_code:
     current_state_neb_closure = neb_closure_by_state_code[current_state]
-    ax.axvline(current_state_neb_closure, color = "blue")
+    ax.axvline(current_state_neb_closure, color = "blue", label = "NEB closure")
 pre_covid_in_dataset = datetime.datetime(2020,3,8)
-ax.axvline(pre_covid_in_dataset, color = "green")
+ax.axvline(pre_covid_in_dataset, color = "green", label = "unacast post-covid\ncutoff")
 ax.set_title(current_state,fontsize = 20)
 ax.set_ylim(-1,0.3)
+ax.legend(loc='upper right', fontsize = 8)
 plt.xticks(rotation='vertical')
 
 # %%
 ## The state wise intervention and traffic change plots
+
 # =============================================================================
-# 
 # fig, axarr = plt.subplots(26,2,figsize = (15,50))
 # state_codes = sorted(df_unacast_state.state_code.unique())
 # axarr_flat = axarr.flatten()
@@ -81,20 +82,21 @@ plt.xticks(rotation='vertical')
 #     df_unacast_single_state = df_unacast_state[df_unacast_state["state_code"]==current_state]
 #     df = df_unacast_single_state
 #     df = df.sort_values('date_converted', ascending=True)
-#     ax.plot(df['date_converted'], df['travel_distance_metric'])
+#     ax.plot(df['date_converted'], df['daily_distance_diff'])
 #     if current_state in emerg_dec_by_state_code:
 #         current_state_emerg_dec = emerg_dec_by_state_code[current_state]
-#         ax.axvline(current_state_emerg_dec, color = "red")
+#         ax.axvline(current_state_emerg_dec, color = "red",label = "state emergency")
 #     if current_state in stay_at_home_by_state_code:
 #         current_state_stay_at_home = stay_at_home_by_state_code[current_state]
-#         ax.axvline(current_state_stay_at_home, color = "orange")
+#         ax.axvline(current_state_stay_at_home, color = "orange", label = "stay at home order")
 #     if current_state in neb_closure_by_state_code:
 #         current_state_neb_closure = neb_closure_by_state_code[current_state]
-#         ax.axvline(current_state_neb_closure, color = "blue")
+#         ax.axvline(current_state_neb_closure, color = "blue", label = "NEB closure")
 #     pre_covid_in_dataset = datetime.datetime(2020,3,8)
-#     ax.axvline(pre_covid_in_dataset, color = "green")
+#     ax.axvline(pre_covid_in_dataset, color = "green",  label = "unacast post-covid\ncutoff")
 #     ax.set_title(current_state,fontsize = 20)
 #     ax.set_ylim(-1,0.3)
+#     ax.legend(loc='upper right', fontsize = 7)
 #     #ax.set_xticks(rotation='vertical')
 # fig.tight_layout()
 # plt.savefig("../outputs/figures/%s_state_wise_distance_change_unacast_%s.pdf" %(output_code,now))
