@@ -1,8 +1,5 @@
 import pandas as pd
 import datetime
-import matplotlib.pyplot as plt
-import scipy.stats as stats
-import numpy as np
 # %%
 output_code = "01_01_01"
 now = datetime.datetime.now().strftime("%Y%m%d")
