@@ -1,0 +1,52 @@
+State,Abbreviation,state_code,Election Results Coding,Number code,2016 result
+Alabama,Ala.,AL,AllR,1,R
+Alaska,Alaska,AK,AllR,1,R
+Arizona,Ariz.,AZ,AllR,1,R
+Arkansas,Ark.,AR,AllR,1,R
+California,Calif.,CA,AllD,5,D
+Colorado,Colo.,CO,MostD,4,D
+Connecticut,Conn.,CT,AllD,5,D
+Delaware,Del.,DE,AllD,5,D
+District of Columbia,D.C.,DC,AllD,5,D
+Florida,Fla.,FL,Tie,3,R
+Georgia,Ga.,GA,AllR,1,R
+Hawaii,Hawaii,HI,AllD,5,D
+Idaho,Idaho,ID,AllD,5,R
+Illinois,Ill.,IL,AllD,5,D
+Indiana,Ind.,IN,MostR,2,R
+Iowa,Iowa,IA,Tie,3,R
+Kansas,Kans.,KS,AllR,1,R
+Kentucky,Ky.,KY,AllR,1,R
+Louisiana,La.,LA,AllR,1,R
+Maine,Maine,ME,AllD,5,D
+Maryland,Md.,MD,AllD,5,D
+Massachusetts,Mass.,MA,AllD,5,D
+Michigan,Mich.,MI,MostD,4,R
+Minnesota,Minn.,MN,AllD,5,D
+Mississippi,Miss.,MS,AllR,1,R
+Missouri,Mo.,MO,AllR,1,R
+Montana,Mont.,MT,AllR,1,R
+Nebraska,Nebr.,NE,AllR,1,R
+Nevada,Nev.,NV,MostD,4,D
+New Hampshire,N.H.,NH,AllD,5,D
+New Jersey,N.J.,NJ,AllD,5,D
+New Mexico,N.M.,NM,MostD,4,D
+New York,N.Y.,NY,AllD,5,D
+North Carolina,N.C.,NC,MostR,2,R
+North Dakota,N.D.,ND,AllR,1,R
+Ohio,Ohio,OH,Tie,3,R
+Oklahoma,Okla.,OK,AllR,1,R
+Oregon,Ore.,OR,AllD,5,D
+Pennsylvania,Pa.,PA,MostD,4,R
+Rhode Island,R.I.,RI,AllD,5,D
+South Carolina,S.C.,SC,AllR,1,R
+South Dakota,S.D.,SD,AllR,1,R
+Tennessee,Tenn.,TN,AllR,1,R
+Texas,Tex.,TX,AllR,1,R
+Utah,Utah,UT,AllR,1,R
+Vermont,Vt.,VT,AllD,5,D
+Virginia,Va.,VA,MostD,4,D
+Washington,Wash.,WA,AllD,5,D
+West Virginia,W.Va.,WV,AlllR,1,R
+Wisconsin,Wis.,WI,MostD,4,R
+Wyoming,Wyo.,WY,AllR,1,R

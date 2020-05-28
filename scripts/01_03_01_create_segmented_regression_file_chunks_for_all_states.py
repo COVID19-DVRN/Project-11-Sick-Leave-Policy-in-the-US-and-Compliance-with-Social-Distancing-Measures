@@ -57,7 +57,13 @@ df_nytimes["date_converted"] = df_nytimes["date"].apply(lambda x: datetime.datet
 ######################
 ## Reading the us state economic conditions and paid sick leaves
 ######################
-df_economic_indicators = pd.read_csv("../inputs/raw/economic_indicators_and_paid_sick_leave_by_state.csv")
+df_economic_indicators = pd.read_csv("../outputs/data/01_01_01_combined_economic_indicators_with_social_distancing_outcomes_state_wide.csv")
+df_economic_indicators = df_economic_indicators[['state_code',
+       'Dominant Sector (BLS, Feb. 2020)', 'Raw # of employees (in thousands)',
+       'Paid Family Leave', 'Paid Sick Leave', 'Any Paid Time Off',
+       'Unemployment Rate Feb 2020', 'Unemployment Rate Jan 2021',
+       'MedianIncome2017', 'Election Results Coding', 'Number code',
+       '2016 result',]]
 df_economic_indicators.set_index("state_code")
 # %%
 def get_deaths_and_cases_on_intervention_date(date_low,current_state,df_nytimes=df_nytimes):
