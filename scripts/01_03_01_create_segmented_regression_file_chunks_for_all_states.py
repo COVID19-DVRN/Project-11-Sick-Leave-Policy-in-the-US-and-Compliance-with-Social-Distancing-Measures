@@ -155,5 +155,7 @@ for current_date in sorted(df_unacast_state["date"].unique()):
     df_all_dates_all_together = df_all_dates_all_together.append(df_new)
 df_all_dates_all_together.to_csv("../outputs/data/segmented_regression_files_by_date/%s_all_dates_combined_economic_indicators_with_social_distancing_outcomes_state_wide.csv" %(output_code), index = False)
 # %%
-with open("../outputs/derived/%s_after_intervention_avg_metric_change_unacast_by_state.csv" %output_code, "w") as f:
-    f.writelines("\n".join(writelines))
+# =============================================================================
+# with open("../outputs/derived/%s_after_intervention_avg_metric_change_unacast_by_state.csv" %output_code, "w") as f:
+#     f.writelines("\n".join(writelines))
+# =============================================================================
