@@ -63,7 +63,7 @@ df_economic_indicators = df_economic_indicators[['state_code',
        'Paid Family Leave', 'Paid Sick Leave', 'Any Paid Time Off',
        'Unemployment Rate Feb 2020', 'Unemployment Rate Jan 2021',
        'MedianIncome2017', 'Election Results Coding', 'Number code',
-       '2016 result',]]
+       '2016 result',"avg_commute_time","avg_commute_time_public_transport"]]
 df_economic_indicators.set_index("state_code")
 # %%
 def get_deaths_and_cases_on_intervention_date(date_low,current_state,df_nytimes=df_nytimes):

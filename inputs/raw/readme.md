@@ -14,3 +14,6 @@ https://docs.google.com/spreadsheets/u/2/d/e/2PACX-1vRwAqp96T9sYYq2-i7Tj0pvTf6XV
 
 ### Unacast movement data
 I am using the version that I accessed on May 9th, 2020
+
+### Commute time state side
+https://www.cnbc.com/2018/02/22/study-states-with-the-longest-and-shortest-commutes.html

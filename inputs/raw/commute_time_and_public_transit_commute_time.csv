@@ -1,0 +1,52 @@
+State,Abbreviation,state_code,avg_commute_time,avg_commute_time_public_transport
+Alabama,Ala.,AL,24.3,46.2
+Alaska,Alaska,AK,18.5,51.6
+Arizona,Ariz.,AZ,25.2,51.3
+Arkansas,Ark.,AR,21.2,34.8
+California,Calif.,CA,29.4,51.4
+Colorado,Colo.,CO,24.9,43.2
+Connecticut,Conn.,CT,25,46.9
+Delaware,Del.,DE,25.9,43.1
+District of Columbia,D.C.,DC,43.6,51.2
+Florida,Fla.,FL,27.4,48.6
+Georgia,Ga.,GA,28.5,50.2
+Hawaii,Hawaii,HI,27.5,50.9
+Idaho,Idaho,ID,20.3,56.3
+Illinois,Ill.,IL,29.1,49.6
+Indiana,Ind.,IN,23,40.1
+Iowa,Iowa,IA,19.1,30.5
+Kansas,Kans.,KS,19.7,42.4
+Kentucky,Ky.,KY,23.5,47.5
+Louisiana,La.,LA,25.4,42.1
+Maine,Maine,ME,22.9,38.2
+Maryland,Md.,MD,30.7,49.9
+Massachusetts,Mass.,MA,30.2,48.5
+Michigan,Mich.,MI,24.4,43.2
+Minnesota,Minn.,MN,23.7,37.9
+Mississippi,Miss.,MS,23,38.6
+Missouri,Mo.,MO,23.8,49.1
+Montana,Mont.,MT,17.3,33.9
+Nebraska,Nebr.,NE,18.8,33.6
+Nevada,Nev.,NV,23.9,57.2
+New Hampshire,N.H.,NH,24.4,33.7
+New Jersey,N.J.,NJ,28.7,50.2
+New Mexico,N.M.,NM,22.1,36.9
+New York,N.Y.,NY,35,53.1
+North Carolina,N.C.,NC,24.4,41.8
+North Dakota,N.D.,ND,18.6,32.6
+Ohio,Ohio,OH,23.5,43
+Oklahoma,Okla.,OK,21.5,30.2
+Oregon,Ore.,OR,24.4,46.1
+Pennsylvania,Pa.,PA,26.4,45.1
+Rhode Island,R.I.,RI,23.9,44.9
+South Carolina,S.C.,SC,24.4,34.4
+South Dakota,S.D.,SD,16.6,29.8
+Tennessee,Tenn.,TN,25.3,40.9
+Texas,Tex.,TX,26.4,49.3
+Utah,Utah,UT,21.6,43.3
+Vermont,Vt.,VT,23.3,31.3
+Virginia,Va.,VA,27.8,47.1
+Washington,Wash.,WA,27.6,48.6
+West Virginia,W.Va.,WV,23.9,35.5
+Wisconsin,Wis.,WI,21.5,34.2
+Wyoming,Wyo.,WY,17.3,46.8
