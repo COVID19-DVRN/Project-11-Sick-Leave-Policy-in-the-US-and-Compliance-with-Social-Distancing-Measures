@@ -37,7 +37,6 @@ df_social_distancing = pd.read_csv("../inputs/derived/01_00_01_after_interventio
 df_social_distancing.set_index("state_code")
 # %%
 df_merged = df.merge(df_social_distancing, how = "inner")
-df_merged.to_csv("../outputs/data/%s_combined_economic_indicators_with_social_distancing_outcomes_state_wide.csv" %output_code, index = False)
 # %%
 ######################
 ## Reading the us state average commuting and public transport commuting distance
@@ -46,4 +45,15 @@ df_commute_time = pd.read_csv("../inputs/raw/commute_time_and_public_transit_com
 df_commute_time.set_index("state_code")
 # %%
 df_merged = df.merge(df_commute_time, how = "inner")
+
+# %%
+######################
+## Reading the ACS 2018 Commuting Data
+######################
+df_acs_commuting_data = pd.read_csv("../inputs/raw/ACS_2018_Commuting_Data.csv",na_filter = False)
+df_acs_commuting_data.set_index("State")
+df_merged = df_merged.merge(df_acs_commuting_data, how = "inner")
+
+#%%
+## Writing the merged dataframe to a file
 df_merged.to_csv("../outputs/data/%s_combined_economic_indicators_with_social_distancing_outcomes_state_wide.csv" %output_code, index = False)
