@@ -54,6 +54,14 @@ df_acs_commuting_data = pd.read_csv("../inputs/raw/ACS_2018_Commuting_Data.csv",
 df_acs_commuting_data.set_index("State")
 df_merged = df_merged.merge(df_acs_commuting_data, how = "inner")
 
+# %%
+######################
+## Reading the Oxfam Labour data
+######################
+df_oxfam_labour_data = pd.read_csv("../inputs/raw/LabourDataJuly2020.csv",na_filter = False)
+df_oxfam_labour_data.set_index("state_code")
+df_merged = df_merged.merge(df_oxfam_labour_data, how = "inner")
+
 #%%
 ## Writing the merged dataframe to a file
 df_merged.to_csv("../outputs/data/%s_combined_economic_indicators_with_social_distancing_outcomes_state_wide.csv" %output_code, index = False)

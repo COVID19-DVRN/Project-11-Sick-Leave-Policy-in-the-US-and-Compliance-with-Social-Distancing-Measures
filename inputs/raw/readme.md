@@ -21,3 +21,7 @@ https://www.cnbc.com/2018/02/22/study-states-with-the-longest-and-shortest-commu
 ## ACS 2018 Commuting Data
 It is compiled by Akshay Deverakonda
 Source is: 
+
+## LabourDataJuly2020
+It is compiled by Fahim Hassan
+The source is: https://policy-practice.oxfamamerica.org/work/poverty-in-the-us/map-oxfam-state-labor-index-2019/scorecard/?state=AL#methodology
