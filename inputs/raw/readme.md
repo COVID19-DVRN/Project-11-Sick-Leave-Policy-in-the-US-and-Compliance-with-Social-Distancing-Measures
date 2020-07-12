@@ -25,3 +25,8 @@ Source is:
 ## LabourDataJuly2020
 It is compiled by Fahim Hassan
 The source is: https://policy-practice.oxfamamerica.org/work/poverty-in-the-us/map-oxfam-state-labor-index-2019/scorecard/?state=AL#methodology
+
+## Google_Global_Mobility_Report.csv
+Source: https://www.google.com/covid19/mobility/
+Reports created 2020-07-09.
+Accessed on: July 12, 2020
