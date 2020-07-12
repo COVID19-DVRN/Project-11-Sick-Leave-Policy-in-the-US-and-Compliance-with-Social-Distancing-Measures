@@ -5,7 +5,7 @@ import scipy.stats as stats
 import numpy as np
 import csv
 # %%
-output_code = "01_03_01"
+output_code = "01_03_02"
 now = datetime.datetime.now().strftime("%Y%m%d")
 # %%
 df_state_name_code_abbrev = pd.read_csv("../inputs/raw/state_code_abbr_fullname.csv")
@@ -41,11 +41,27 @@ stay_at_home_by_state_code = {k: datetime.datetime.strptime(str(int(v)),"%Y%m%d"
 ######################
 ## Reading the unacast social distancing metric data for states
 ######################
-## Now read the Uncast file first
-unacast_date_format = "%Y-%m-%d"
-df_unacast_state = pd.read_csv("../inputs/raw/untracked/unacast_20200509/sds-v3-full-state.csv")
-df_unacast_state["date_converted"] = df_unacast_state["date"].apply(lambda x: datetime.datetime.strptime(x,unacast_date_format))
-df_unacast_state["date_simple_string"] = df_unacast_state["date"].apply(lambda x: datetime.datetime.strftime(datetime.datetime.strptime(x,unacast_date_format),"%Y%m%d"))
+# =============================================================================
+# ## Now read the Uncast file first
+# unacast_date_format = "%Y-%m-%d"
+# df_unacast_state = pd.read_csv("../inputs/raw/untracked/unacast_20200509/sds-v3-full-state.csv")
+# df_unacast_state["date_converted"] = df_unacast_state["date"].apply(lambda x: datetime.datetime.strptime(x,unacast_date_format))
+# df_unacast_state["date_simple_string"] = df_unacast_state["date"].apply(lambda x: datetime.datetime.strftime(datetime.datetime.strptime(x,unacast_date_format),"%Y%m%d"))
+# =============================================================================
+#%%
+######################
+## Reading the Google mobility data for states
+######################
+## Now read the Google mobility data file first
+google_mobility_date_format = "%Y-%m-%d"
+df_google_mobility_us_states = pd.read_csv("../inputs/raw/Google_Global_Mobility_Report.csv")
+## So if I want to get the state level data then I need to acces it by using the
+## "iso_3166_2_code" in the dataset, for example  it will look like "US-FL" for
+## the state of florida.
+df_google_mobility_us_states = df_google_mobility_us_states[df_google_mobility_us_states["iso_3166_2_code"].str.contains("US-",  na=False)]
+df_google_mobility_us_states["date_converted"] = df_google_mobility_us_states["date"].apply(lambda x: datetime.datetime.strptime(x,google_mobility_date_format))
+df_google_mobility_us_states["date_simple_string"] = df_google_mobility_us_states["date"].apply(lambda x: datetime.datetime.strftime(datetime.datetime.strptime(x,google_mobility_date_format),"%Y%m%d"))
+df_google_mobility_us_states["state_code"] = df_google_mobility_us_states["iso_3166_2_code"].apply(lambda x: x.replace("US-",""))
 # %%
 ######################
 ## Reading the NYTimes covid-19 cases and death data
@@ -58,12 +74,50 @@ df_nytimes["date_converted"] = df_nytimes["date"].apply(lambda x: datetime.datet
 ## Reading the us state economic conditions and paid sick leaves
 ######################
 df_economic_indicators = pd.read_csv("../outputs/data/01_01_01_combined_economic_indicators_with_social_distancing_outcomes_state_wide.csv")
-df_economic_indicators = df_economic_indicators[['state_code',
+variables = ['state_code',
        'Dominant Sector (BLS, Feb. 2020)', 'Raw # of employees (in thousands)',
        'Paid Family Leave', 'Paid Sick Leave', 'Any Paid Time Off',
        'Unemployment Rate Feb 2020', 'Unemployment Rate Jan 2021',
        'MedianIncome2017', 'Election Results Coding', 'Number code',
-       '2016 result',"avg_commute_time","avg_commute_time_public_transport"]]
+       '2016 result',"avg_commute_time","avg_commute_time_public_transport"]
+akshay_ACS_commuting_variables = ["COMMUTING TO WORK-Workers 16 years and over",
+                                  "COMMUTING TO WORK-Workers 16 years and over-Car, truck, or van -- drove alone",
+                                  "Percent Estimate-COMMUTING TO WORK-Workers 16 years and over-Car, truck, or van -- drove alone",
+                                  "Estimate-COMMUTING TO WORK-Workers 16 years and over-Car, truck, or van -- carpooled",
+                                  "Percent Estimate-COMMUTING TO WORK-Workers 16 years and over-Car, truck, or van -- carpooled",
+                                  "Estimate-COMMUTING TO WORK-Workers 16 years and over-Public transportation (excluding taxicab)","Percent Estimate-COMMUTING TO WORK-Workers 16 years and over-Public transportation (excluding taxicab)",
+                                  "Estimate-COMMUTING TO WORK-Workers 16 years and over-Walked",
+                                  "Percent Estimate-COMMUTING TO WORK-Workers 16 years and over-Walked",
+                                  "Estimate-COMMUTING TO WORK-Workers 16 years and over-Other means",
+                                  "Percent Estimate-COMMUTING TO WORK-Workers 16 years and over-Other means",
+                                  "Estimate-COMMUTING TO WORK-Workers 16 years and over-Worked at home",
+                                  "Percent Estimate-COMMUTING TO WORK-Workers 16 years and over-Worked at home",
+                                  "Estimate-COMMUTING TO WORK-Workers 16 years and over-Mean travel time to work (minutes)"]
+variables.extend(akshay_ACS_commuting_variables)
+fahim_oxfam_labour_indicators = ["Labour Overall Index Score",
+                                 "Labour Overall Index Ranking",
+                                 "Wage Dimension Score",
+                                 "Worker Protection Dimension Score",
+                                 "Right to Organize Dimension Score",
+                                 "Wage Dimension Score 2019",
+                                 "Wage Dimension ranking 2019",
+                                 "MIT Living Wage 2019",
+                                 "Minimum Wage 2019",
+                                 "Wage Ratio (Living wage/Minimum wage)",
+                                 "Local Control of Min. Wage 2019 (1=Yes)",
+                                 "Worker Protection Dimension 2020 Score",
+                                 "Worker Protection Dimension 2020 Ranking",
+                                 "Family Leave Indicator (Job-protected leave for non-FMLA Workers < 1 year on job_0.5=Yes, 0.25=Yes for Pregnant Workers only)",
+                                 "Family Leave Indicator ( Job-protected leave longer than Federal FMLA)",
+                                 "Paid Family Leave (Yes=1)",
+                                 "Paid Sick Leave Indicator Law in Place (1=Yes)",
+                                 "Flexible Scheduling (yes=1)",
+                                 "Reporting Pay (yes=1)",
+                                 "Split Shift Pay 2019 (yes=1)",
+                                 "Advanced Shift Notice 2019 (yes=1)"]
+variables.extend(fahim_oxfam_labour_indicators)
+
+df_economic_indicators = df_economic_indicators[variables]
 df_economic_indicators.set_index("state_code")
 # %%
 def get_deaths_and_cases_on_intervention_date(date_low,current_state,df_nytimes=df_nytimes):
@@ -101,10 +155,19 @@ for current_npi_intervention in npi_interventions:
     current_npi_intervention_columns = ["day_since_%s"  %current_npi_intervention]
     columns.extend(current_npi_intervention_columns)
 
-columns.extend(["daily_distance_diff","daily_visitation_diff","encounters_rate"])
+## Unacast mobility columns
+#columns.extend(["daily_distance_diff","daily_visitation_diff","encounters_rate"])
+## Google mobility columns
+google_mobility_outcome_variables = ["retail_and_recreation_percent_change_from_baseline",
+                "grocery_and_pharmacy_percent_change_from_baseline",
+                "parks_percent_change_from_baseline",
+                "transit_stations_percent_change_from_baseline",
+                "workplaces_percent_change_from_baseline",
+                "residential_percent_change_from_baseline"]
+columns.extend(google_mobility_outcome_variables)
 
 df_all_dates_all_together = pd.DataFrame([],columns=columns)
-for current_date in sorted(df_unacast_state["date"].unique()):
+for current_date in sorted(df_google_mobility_us_states["date"].unique()):
     ## For each date we will create a single file where we will have all the possible indicators
     writelines = []
     #writelines.append(columns)
@@ -113,7 +176,7 @@ for current_date in sorted(df_unacast_state["date"].unique()):
     ## day_since_federal_family_first_act,day_since_state_emergency,day_since_statewide_neb_closure,day_since_statewide_stay_at_home',"daily_distance_diff","daily_visitation_diff","encounters_rate"
     
     ## another loop for a line for each state
-    for current_state in sorted(df_unacast_state.state_code.unique()):
+    for current_state in sorted(state_code_to_state_name.keys()):
         writevalues = []
         writevalues.append(current_state)
         writevalues.append(current_date)
@@ -145,15 +208,16 @@ for current_date in sorted(df_unacast_state["date"].unique()):
         writevalues.extend(days_since_npi_intervention)
         
         ## We are making sure the serial is "daily_distance_diff","daily_visitation_diff","encounters_rate"
-        outcome_variables = ["daily_distance_diff","daily_visitation_diff","encounters_rate"]
-        writevalues.extend(df_unacast_state.loc[(df_unacast_state["date_converted"]==current_date)&(df_unacast_state["state_code"]==current_state),outcome_variables].values[0])         
+        ##unacast_outcome_variables = ["daily_distance_diff","daily_visitation_diff","encounters_rate"]
+
+        writevalues.extend(df_google_mobility_us_states.loc[(df_google_mobility_us_states["date_converted"]==current_date)&(df_google_mobility_us_states["state_code"]==current_state),google_mobility_outcome_variables].values[0])         
         writelines.append(writevalues)
     
     df_single_day_npi_and_distances = pd.DataFrame(writelines,columns = columns)
     df_new = df_single_day_npi_and_distances.merge(df_economic_indicators, how = "inner")
-    df_new.to_csv("../outputs/data/segmented_regression_files_by_date/%s_combined_economic_indicators_with_social_distancing_outcomes_state_wide_%s.csv" %(output_code,current_date), index = False)
+    df_new.to_csv("../outputs/data/segmented_regression_files_with_google_mobility_by_date/%s_combined_economic_indicators_with_social_distancing_outcomes_state_wide_%s.csv" %(output_code,current_date), index = False)
     df_all_dates_all_together = df_all_dates_all_together.append(df_new)
-df_all_dates_all_together.to_csv("../outputs/data/segmented_regression_files_by_date/%s_all_dates_combined_economic_indicators_with_social_distancing_outcomes_state_wide.csv" %(output_code), index = False)
+df_all_dates_all_together.to_csv("../outputs/data/segmented_regression_files_with_google_mobility_by_date/%s_all_dates_combined_economic_indicators_with_social_distancing_outcomes_state_wide.csv" %(output_code), index = False)
 # %%
 # =============================================================================
 # with open("../outputs/derived/%s_after_intervention_avg_metric_change_unacast_by_state.csv" %output_code, "w") as f:
