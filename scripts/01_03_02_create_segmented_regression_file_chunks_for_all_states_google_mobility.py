@@ -116,6 +116,11 @@ fahim_oxfam_labour_indicators = ["Labour Overall Index Score",
                                  "Split Shift Pay 2019 (yes=1)",
                                  "Advanced Shift Notice 2019 (yes=1)"]
 variables.extend(fahim_oxfam_labour_indicators)
+akshay_us_population_land_gdp_variables = ["Annual State GDP for 2019",
+                                            "U.S. State Population 2019 Estimate",
+                                            "U.S. State Land Area (Square Miles)",
+                                            "State Population Per Square Mile"]
+variables.extend(akshay_us_population_land_gdp_variables)
 
 df_economic_indicators = df_economic_indicators[variables]
 df_economic_indicators.set_index("state_code")
