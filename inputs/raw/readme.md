@@ -19,14 +19,26 @@ I am using the version that I accessed on May 9th, 2020
 https://www.cnbc.com/2018/02/22/study-states-with-the-longest-and-shortest-commutes.html
 
 ## ACS 2018 Commuting Data
-It is compiled by Akshay Deverakonda
+Responsible person: It is compiled by Akshay Deverakonda
 Source is: 
 
 ## LabourDataJuly2020
-It is compiled by Fahim Hassan
+Responsible person: It is compiled by Fahim Hassan
 The source is: https://policy-practice.oxfamamerica.org/work/poverty-in-the-us/map-oxfam-state-labor-index-2019/scorecard/?state=AL#methodology
 
 ## Google_Global_Mobility_Report.csv
+Responsible person: Syed
 Source: https://www.google.com/covid19/mobility/
 Reports created 2020-07-09.
 Accessed on: July 12, 2020
+
+## us_states_population_and_land_area.csv
+US States Population, Land Area, Population Denisity per mile
+Compiled by: Akshay Deverakonda
+Population: (Source: ACS 2019 (https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html#par_textimage)
+Land Area:  (Source: Census 2010 (https://www.census.gov/prod/cen2010/cph-2-1.pdf, Table 20, page 91)
+
+## us_states_annual_state_GDP_for_2019.csv
+This contain the annual GDP of US states for the year 2019
+compiled by: Akshay Deverakonda
+
