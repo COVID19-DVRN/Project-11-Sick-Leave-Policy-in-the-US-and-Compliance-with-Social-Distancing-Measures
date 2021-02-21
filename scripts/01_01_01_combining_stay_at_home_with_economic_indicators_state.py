@@ -73,6 +73,45 @@ df_merged = df_merged.merge(df_us_states_gdp, how = "inner")
 df_us_states_population_land_area = pd.read_csv("../inputs/raw/us_states_population_and_land_area.csv",na_filter = False)
 df_us_states_population_land_area.set_index("state_code")
 df_merged = df_merged.merge(df_us_states_population_land_area, how = "inner")
+######################
+## Merging the US Unemployement rate in different months and the population by race ethnicity
+######################
+## New  columns 
+columns_to_add = ['Unemployment Rate Jan 2020',
+	'Unemployment Rate Feb 2020',
+	'Unemployment Rate Mar 2020',
+	'Unemployment Rate Apr 2020',
+	'Unemployment Rate May 2020',
+	'Unemployment Rate Jun 2020',
+	'Unemployment Rate Jul 2020',
+	'Unemployment Rate Aug 2020',
+	'Unemployment Rate Sept 2020',
+	'Unemployment Rate Oct 2020',
+	'Unemployment Rate Nov 2020',
+	'Unemployment Rate Dec 2020',
+	'White',
+	'Black',
+	'Hispanic',
+	'Asian',
+	'American Indian/Alaska Native',
+	'Native Hawaiian/Other Pacific Islander',
+	'Multiple Races']
+
+df_us_states_unemployment_and_race_ethnicity = pd.read_csv("../inputs/raw/us_states_unemployment_and_race_ethnicity.csv",na_filter = False)
+df_us_states_unemployment_and_race_ethnicity = df_us_states_unemployment_and_race_ethnicity[["state_code"]+columns_to_add]
+df_us_states_unemployment_and_race_ethnicity.set_index("state_code")
+## Two columns "American Indian/Alaska Native" and  "Native Hawaiian/Other Pacific Islander"
+## have text values, those values are either "N/A" or "<.01". I am manually changing
+## those "N/A" with "nan" and "<.01" as "0.001".
+dict_keywords_to_transform = {
+	"N/A":"nan",
+	"<.01":"0.001"
+}
+columns_transfomration_required = ["American Indian/Alaska Native", "Native Hawaiian/Other Pacific Islander"]
+for column_transfomration_required in columns_transfomration_required:
+	df_us_states_unemployment_and_race_ethnicity[column_transfomration_required].replace(dict_keywords_to_transform, inplace = True)
+df_merged = df_merged.merge(df_us_states_unemployment_and_race_ethnicity, how = "inner")
+
 #%%
 ## Writing the merged dataframe to a file
 df_merged.to_csv("../outputs/data/%s_combined_economic_indicators_with_social_distancing_outcomes_state_wide.csv" %output_code, index = False)
