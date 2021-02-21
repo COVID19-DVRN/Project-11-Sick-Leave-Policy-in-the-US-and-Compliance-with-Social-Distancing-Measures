@@ -150,7 +150,6 @@ stccenter_socioeconomic_indicator = ["Senior Population",
 
 variables.extend(stccenter_socioeconomic_indicator)
 
-
 df_economic_indicators = df_economic_indicators[variables]
 df_economic_indicators.set_index("state_code")
 # %%
