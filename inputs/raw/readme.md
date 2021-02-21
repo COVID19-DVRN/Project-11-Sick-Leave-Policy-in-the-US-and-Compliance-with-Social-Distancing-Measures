@@ -30,8 +30,8 @@ The source is: https://policy-practice.oxfamamerica.org/work/poverty-in-the-us/m
 ## Google_Global_Mobility_Report.csv
 Responsible person: Syed
 Source: https://www.google.com/covid19/mobility/
-Reports created 2020-07-09.
-Accessed on: July 12, 2020
+Reports created 2021-02-18.
+Accessed on: February 21, 2021
 
 ## us_states_population_and_land_area.csv
 US States Population, Land Area, Population Denisity per mile

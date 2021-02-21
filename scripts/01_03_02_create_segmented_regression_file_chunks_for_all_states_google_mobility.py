@@ -77,7 +77,6 @@ df_economic_indicators = pd.read_csv("../outputs/data/01_01_01_combined_economic
 variables = ['state_code',
        'Dominant Sector (BLS, Feb. 2020)', 'Raw # of employees (in thousands)',
        'Paid Family Leave', 'Paid Sick Leave', 'Any Paid Time Off',
-       'Unemployment Rate Feb 2020', 'Unemployment Rate Jan 2021',
        'MedianIncome2017', 'Election Results Coding', 'Number code',
        '2016 result',"avg_commute_time","avg_commute_time_public_transport"]
 akshay_ACS_commuting_variables = ["COMMUTING TO WORK-Workers 16 years and over",
@@ -121,6 +120,36 @@ akshay_us_population_land_gdp_variables = ["Annual State GDP for 2019",
                                             "U.S. State Land Area (Square Miles)",
                                             "State Population Per Square Mile"]
 variables.extend(akshay_us_population_land_gdp_variables)
+
+unemployement_and_race_ethnicty_variables = ['Unemployment Rate Jan 2020',
+    'Unemployment Rate Feb 2020',
+    'Unemployment Rate Mar 2020',
+    'Unemployment Rate Apr 2020',
+    'Unemployment Rate May 2020',
+    'Unemployment Rate Jun 2020',
+    'Unemployment Rate Jul 2020',
+    'Unemployment Rate Aug 2020',
+    'Unemployment Rate Sept 2020',
+    'Unemployment Rate Oct 2020',
+    'Unemployment Rate Nov 2020',
+    'Unemployment Rate Dec 2020',
+    'White',
+    'Black',
+    'Hispanic',
+    'Asian',
+    'American Indian/Alaska Native',
+    'Native Hawaiian/Other Pacific Islander',
+    'Multiple Races']
+variables.extend(unemployement_and_race_ethnicty_variables)
+
+stccenter_socioeconomic_indicator = ["Senior Population",
+"Young Population",
+"Male Population",
+"Median household income",
+"Poverty rate"]
+
+variables.extend(stccenter_socioeconomic_indicator)
+
 
 df_economic_indicators = df_economic_indicators[variables]
 df_economic_indicators.set_index("state_code")

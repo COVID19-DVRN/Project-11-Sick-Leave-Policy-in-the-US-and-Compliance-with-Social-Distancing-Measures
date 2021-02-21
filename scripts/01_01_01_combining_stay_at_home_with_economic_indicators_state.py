@@ -17,8 +17,8 @@ df = df[["State","Abbreviation","state_code",
          "Dominant Sector (BLS, Feb. 2020)",
          "Raw # of employees (in thousands)",
          "Paid Family Leave", "Paid Sick Leave",
-         "Any Paid Time Off","Unemployment Rate Feb 2020",
-         "Unemployment Rate Jan 2021","MedianIncome2017"]]
+         "Any Paid Time Off",
+         "MedianIncome2017"]]
 df["Dominant Sector (BLS, Feb. 2020)"] = df["Dominant Sector (BLS, Feb. 2020)"].apply(lambda x: x.replace(",","").replace("&","and")) 
 df.set_index("state_code")
 # %%
@@ -70,7 +70,9 @@ df_merged = df_merged.merge(df_us_states_gdp, how = "inner")
 ######################
 ## Merging the US States Population, Area (in mile) and population density data
 ######################
+columns_to_add = ["U.S. State Population 2019 Estimate","U.S. State Land Area (Square Miles)","State Population Per Square Mile"]
 df_us_states_population_land_area = pd.read_csv("../inputs/raw/us_states_population_and_land_area.csv",na_filter = False)
+df_us_states_population_land_area = df_us_states_population_land_area[["state_code"]+columns_to_add]
 df_us_states_population_land_area.set_index("state_code")
 df_merged = df_merged.merge(df_us_states_population_land_area, how = "inner")
 ######################
