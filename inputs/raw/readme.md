@@ -42,3 +42,7 @@ Land Area:  (Source: Census 2010 (https://www.census.gov/prod/cen2010/cph-2-1.pd
 This contain the annual GDP of US states for the year 2019
 compiled by: Akshay Deverakonda
 
+## us_states_unemployment_and_race_ethnicity.csv
+Source: Complined by Fahim hasan found in the [DVRN google drive sheet](https://docs.google.com/spreadsheets/d/14u-ITLW0iIKfiWZxIR9vmpIdslvvj2Pm5g9MPSCJOWg/edit#gid=305453204) in a tab called unemployment_and_race_ethnicity. The unemployment data is sourced from [BLS website](https://www.bls.gov/charts/state-employment-and-unemployment/state-unemployment-rates-animated.htm). The race ethnicity data is sourced from [Kaiser Family Foundataion](https://www.kff.org/other/state-indicator/distribution-by-raceethnicity/?currentTimeframe=0&sortModel=%7B%22colId%22:%22Location%22,%22sort%22:%22asc%22%7D).
+
+In this data, in two columns (American Indian/Alaska Native, Native Hawaiian/Other Pacific Islander) there are text values, those values are either "N/A" or "<.01". I have manually changed those "N/A" with "nan" and "<.01" as "0.001".
