@@ -111,6 +111,20 @@ columns_transfomration_required = ["American Indian/Alaska Native", "Native Hawa
 for column_transfomration_required in columns_transfomration_required:
 	df_us_states_unemployment_and_race_ethnicity[column_transfomration_required].replace(dict_keywords_to_transform, inplace = True)
 df_merged = df_merged.merge(df_us_states_unemployment_and_race_ethnicity, how = "inner")
+######################
+## Merging the a few otther socioeconomic determinants from 
+######################
+## New  columns 
+columns_to_add = ["Senior Population",
+	"Young Population",
+	"Male Population",
+	"Median household income",
+	"Poverty rate"]
+df_us_states_stccenter_socioeconomic_indicators = pd.read_csv("../inputs/raw/us_states_stccenter_covid19data_socioeconomic_determinants.csv",na_filter = False)
+df_us_states_stccenter_socioeconomic_indicators["state_code"] = df_us_states_stccenter_socioeconomic_indicators["Postal Code"]
+df_us_states_stccenter_socioeconomic_indicators = df_us_states_stccenter_socioeconomic_indicators[["state_code"]+columns_to_add]
+df_us_states_stccenter_socioeconomic_indicators.set_index("state_code")
+df_merged = df_merged.merge(df_us_states_stccenter_socioeconomic_indicators, how = "inner")
 
 #%%
 ## Writing the merged dataframe to a file
