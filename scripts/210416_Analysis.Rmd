@@ -1,0 +1,385 @@
+---
+title: "Project 11 Analysis"
+author: "Catherine C. Pollack"
+date: "2/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache.lazy = FALSE)
+```
+
+# Bring in Libraries and Packages
+```{r}
+list_of_packages <- c("tidyverse", "janitor", "magrittr", "lmerTest", "lubridate", "ggsci", "corrplot", "ggpubr", "mediation", "reshape2", "lavaan")
+new_packages <- list_of_packages[!(list_of_packages %in% installed.packages()[,"Package"])]
+if(length(new_packages)) installed.packages(new_packages)
+
+for (lib in list_of_packages) {
+  library(lib, character.only = TRUE)
+}
+```
+
+# Bring in Data
+```{r}
+dat <- read_csv("https://raw.githubusercontent.com/COVID19-DVRN/Project-11-Sick-Leave-Policy-in-the-US-and-Compliance-with-Social-Distancing-Measures/master/outputs/data/segmented_regression_files_with_google_mobility_by_date/01_03_02_all_dates_combined_economic_indicators_with_social_distancing_outcomes_state_wide.csv") %>%
+  clean_names()
+```
+
+# Adding Variables
+```{r}
+dat %<>%
+  mutate(date_of_state_emergency = current_date - day_since_state_emergency,
+         date_of_statewide_neb_closure = current_date - day_since_statewide_neb_closure,
+         date_of_statewide_stay_at_home = current_date - day_since_statewide_stay_at_home)
+
+dat$weekday <- wday(dat$current_date, label = TRUE, abbr = FALSE)
+
+dat$is_weekend <- ifelse(dat$weekday == "Saturday" | dat$weekday == "Sunday", "yes", "no")
+
+dat %<>%
+  mutate(is_after_ffl = case_when(
+    current_date < "2020-03-18" ~ "Before",
+    current_date >= "2020-03-18" ~ "After"
+  ))
+
+dat$is_after_ffl <- factor(dat$is_after_ffl, levels = c("Before", "After"))
+```
+
+# Redoing Matthew's Data: Figure
+```{r}
+plot_no_sick_leave <- dat %>%
+  filter(weekday != "Saturday" & weekday != "Sunday" & paid_sick_leave == "No") %>%
+  ggplot(aes(x = current_date, y = workplaces_percent_change_from_baseline, group = state_code)) +
+  geom_rect(aes(xmin = min(date_of_state_emergency), 
+                xmax = max(date_of_state_emergency),
+                ymin = 0,
+                ymax = max(workplaces_percent_change_from_baseline),
+                fill = "State of Emergency Declared")) +
+  geom_rect(aes(xmin = min(date_of_statewide_stay_at_home, na.rm = TRUE), 
+                xmax = max(date_of_statewide_stay_at_home, na.rm = TRUE),
+                ymin = -50,
+                ymax = -25,
+                fill = "Stay-at-Home Orders")) +
+  geom_rect(aes(xmin = min(date_of_statewide_neb_closure, na.rm = TRUE), 
+                xmax = max(date_of_statewide_neb_closure, na.rm = TRUE),
+                ymin = -25,
+                ymax = 0,
+                fill = "Non-Essential Business Closure")) +
+  scale_fill_manual(values = c("#90EE90", "#FFCCCB", "#ADD8E6")) + 
+  geom_line(color = "grey") +
+  ylim(-80, 20) + 
+  geom_vline(xintercept = as.Date("03-18-2020", format = "%m-%d-%Y")) +
+  theme_classic() +
+  labs(x = "Date",
+       y = "Workplace Travel (% Change from Baseline)",
+       fill = "Policies",
+       title = "No Paid Sick Leave")
+
+plot_sick_leave <- dat %>%
+  filter(weekday != "Saturday" & weekday != "Sunday" & paid_sick_leave == "Yes") %>%
+  ggplot(aes(x = current_date, y = workplaces_percent_change_from_baseline, group = state_code)) +
+  geom_rect(aes(xmin = min(date_of_state_emergency), 
+                xmax = max(date_of_state_emergency),
+                ymin = 0,
+                ymax = max(workplaces_percent_change_from_baseline),
+                fill = "State of Emergency Declared")) +
+  geom_rect(aes(xmin = min(date_of_statewide_stay_at_home, na.rm = TRUE), 
+                xmax = max(date_of_statewide_stay_at_home, na.rm = TRUE),
+                ymin = -50,
+                ymax = -25,
+                fill = "Stay-at-Home Orders")) +
+  geom_rect(aes(xmin = min(date_of_statewide_neb_closure, na.rm = TRUE), 
+                xmax = max(date_of_statewide_neb_closure, na.rm = TRUE),
+                ymin = -25,
+                ymax = 0,
+                fill = "Non-Essential Business Closure")) +
+  scale_fill_manual(values = c("#90EE90", "#FFCCCB", "#ADD8E6")) + 
+  geom_line(color = "grey") +
+  geom_vline(xintercept = as.Date("03-18-2020", format = "%m-%d-%Y")) +
+  theme_classic() +
+  ylim(-80, 20) + 
+  labs(x = "Date",
+       y = "Workplace Travel (% Change from Baseline)",
+       fill = "Policies",
+       title = "Paid Sick Leave")
+
+ggarrange(plot_no_sick_leave, plot_sick_leave, 
+          common.legend = TRUE,
+          legend = "bottom")
+ggsave("210416_mobility_policies_sickleave_noweekend.tiff", width = 7.25, height = 4.51)
+
+```
+
+# Second version of figure: same plot different color
+```{r}
+dat %>%
+  filter(weekday != "Saturday" & weekday != "Sunday") %>%
+  ggplot(aes(x = current_date,
+             y = workplaces_percent_change_from_baseline, 
+             color = paid_sick_leave, 
+             group = state_code)) +
+  geom_line() +
+  scale_color_manual(values = c("lightgrey", "darkblue")) +
+  geom_vline(xintercept = as.Date("03-18-2020", format = "%m-%d-%Y")) +
+  theme_classic() +
+  labs(x = "Date",
+       y = "Workplace Travel (% Change from Baseline)",
+       color = "State-Level Paid Sick Leave",
+       title = "Mobility Changes Over Time by Paid Sick Leave")
+ggsave("210416_mobility_policies_sickleave_noweekend_v2.tiff", width = 7.25, height = 4.51)
+```
+
+# Repeat for residential movement
+```{r}
+plot_no_sick_leave_residential <- dat %>%
+  filter(weekday != "Saturday" & weekday != "Sunday" & paid_sick_leave == "No") %>%
+  ggplot(aes(x = current_date, y = residential_percent_change_from_baseline, group = state_code)) +
+  geom_rect(aes(xmin = min(date_of_state_emergency), 
+                xmax = max(date_of_state_emergency),
+                ymin = 0,
+                ymax = max(residential_percent_change_from_baseline),
+                fill = "State of Emergency Declared")) +
+  geom_rect(aes(xmin = min(date_of_statewide_stay_at_home, na.rm = TRUE), 
+                xmax = max(date_of_statewide_stay_at_home, na.rm = TRUE),
+                ymin = -50,
+                ymax = -25,
+                fill = "Stay-at-Home Orders")) +
+  geom_rect(aes(xmin = min(date_of_statewide_neb_closure, na.rm = TRUE), 
+                xmax = max(date_of_statewide_neb_closure, na.rm = TRUE),
+                ymin = -25,
+                ymax = 0,
+                fill = "Non-Essential Business Closure")) +
+  scale_fill_manual(values = c("#90EE90", "#FFCCCB", "#ADD8E6")) + 
+  geom_line(color = "grey") +
+  geom_vline(xintercept = as.Date("03-18-2020", format = "%m-%d-%Y")) +
+  theme_classic() +
+  labs(x = "Date",
+       y = "Residential Travel (% Change from Baseline)",
+       fill = "Policies",
+       title = "No Paid Sick Leave")
+
+plot_sick_leave_residential <- dat %>%
+  filter(weekday != "Saturday" & weekday != "Sunday" & paid_sick_leave == "Yes") %>%
+  ggplot(aes(x = current_date, y = residential_percent_change_from_baseline, group = state_code)) +
+  geom_rect(aes(xmin = min(date_of_state_emergency), 
+                xmax = max(date_of_state_emergency),
+                ymin = 0,
+                ymax = max(residential_percent_change_from_baseline),
+                fill = "State of Emergency Declared")) +
+  geom_rect(aes(xmin = min(date_of_statewide_stay_at_home, na.rm = TRUE), 
+                xmax = max(date_of_statewide_stay_at_home, na.rm = TRUE),
+                ymin = -50,
+                ymax = -25,
+                fill = "Stay-at-Home Orders")) +
+  geom_rect(aes(xmin = min(date_of_statewide_neb_closure, na.rm = TRUE), 
+                xmax = max(date_of_statewide_neb_closure, na.rm = TRUE),
+                ymin = -25,
+                ymax = 0,
+                fill = "Non-Essential Business Closure")) +
+  scale_fill_manual(values = c("#90EE90", "#FFCCCB", "#ADD8E6")) + 
+  geom_line(color = "grey") +
+  geom_vline(xintercept = as.Date("03-18-2020", format = "%m-%d-%Y")) +
+  theme_classic() +
+  labs(x = "Date",
+       y = "Residential Travel (% Change from Baseline)",
+       fill = "Policies",
+       title = "Paid Sick Leave")
+
+ggarrange(plot_no_sick_leave_residential, plot_sick_leave_residential, 
+          common.legend = TRUE,
+          legend = "bottom")
+ggsave("210310_residential_mobility_policies_sickleave_noweekend.tiff", width = 7.25, height = 4.51)
+
+```
+
+# Adding New Values
+```{r}
+dat$white <- dat$white * 100
+dat$black <- dat$black * 100
+dat$hispanic <- dat$hispanic * 100
+dat$asian <- dat$asian * 100
+dat$american_indian_alaska_native <- dat$american_indian_alaska_native * 100
+dat$native_hawaiian_other_pacific_islander <- dat$native_hawaiian_other_pacific_islander * 100
+dat$multiple_races <- dat$multiple_races * 100
+
+dat$u_s_state_population_2019_estimate_numeric <- gsub("[\",]", "", dat$u_s_state_population_2019_estimate)
+dat$u_s_state_population_2019_estimate_numeric <- as.numeric(dat$u_s_state_population_2019_estimate_numeric)
+
+dat %<>%
+  mutate(p_days_since_ffl = case_when(
+    current_date >= "2020-03-18" ~ current_date - as.Date("2020-03-18"),
+    TRUE ~ 0),
+    population_adjusted_new_cases_per_100k = new_cases_since_a_week_before/as.numeric(u_s_state_population_2019_estimate_numeric) * 100000,
+    population_adjusted_new_deaths_per_100k = new_deaths_since_a_week_before/as.numeric(u_s_state_population_2019_estimate_numeric) * 100000,
+    population_adjusted_cumulative_cases_per_100k = cumulative_cases_at_current_date/as.numeric(u_s_state_population_2019_estimate_numeric) * 100000,
+    
+)
+
+dat %<>%
+  dplyr::select(state_code, current_date, unemployment_rate_feb_2020, unemployment_rate_mar_2020, unemployment_rate_apr_2020, unemployment_rate_may_2020, unemployment_rate_jun_2020, unemployment_rate_jul_2020) %>%
+  melt(id = c("state_code", "current_date"), value.name = "unemployment_rate", variable.name = "unemployment_month") %>%
+  mutate(unemployment_ismatch = case_when(
+    month(current_date) == 2 & unemployment_month == "unemployment_rate_feb_2020" ~ 1,
+    month(current_date) == 3 & unemployment_month == "unemployment_rate_mar_2020" ~ 1,
+    month(current_date) == 4 & unemployment_month == "unemployment_rate_apr_2020" ~ 1,
+    month(current_date) == 5 & unemployment_month == "unemployment_rate_may_2020" ~ 1,
+    month(current_date) == 6 & unemployment_month == "unemployment_rate_jun_2020" ~ 1,
+    month(current_date) == 7 & unemployment_month == "unemployment_rate_jul_2020" ~ 1,
+    TRUE ~ 0
+  )) %>%
+  filter(unemployment_ismatch == 1) %>%
+  right_join(., dat, by = c("state_code", "current_date"))
+
+dat$month <- month(dat$current_date, label = TRUE)
+```
+
+## Correlation Matrix for Univariate Analysis -- Already checked and removed 
+```{r}
+univariate_analysis_continuous <- dat %>%
+  select(cumulative_cases_at_current_date, cumulative_deaths_at_current_date, new_cases_since_a_week_before, new_deaths_since_a_week_before, retail_and_recreation_percent_change_from_baseline, grocery_and_pharmacy_percent_change_from_baseline, transit_stations_percent_change_from_baseline, residential_percent_change_from_baseline, raw_number_of_employees_in_thousands, unemployment_rate_feb_2020, unemployment_rate_jan_2021, median_income2017, avg_commute_time, avg_commute_time_public_transport, commuting_to_work_workers_16_years_and_over, commuting_to_work_workers_16_years_and_over_car_truck_or_van_drove_alone, percent_estimate_commuting_to_work_workers_16_years_and_over_car_truck_or_van_drove_alone, percent_estimate_commuting_to_work_workers_16_years_and_over_car_truck_or_van_carpooled, percent_estimate_commuting_to_work_workers_16_years_and_over_public_transportation_excluding_taxicab, percent_estimate_commuting_to_work_workers_16_years_and_over_walked, percent_estimate_commuting_to_work_workers_16_years_and_over_other_means, percent_estimate_commuting_to_work_workers_16_years_and_over_worked_at_home, labour_overall_index_score, wage_dimension_score, right_to_organize_dimension_score, mit_living_wage_2019, wage_ratio_living_wage_minimum_wage, worker_protection_dimension_2020_score, annual_state_gdp_for_2019, u_s_state_population_2019_estimate, u_s_state_land_area_square_miles, state_population_per_square_mile) 
+
+corr <- cor(univariate_analysis_continuous)
+corrplot(corr,
+         diag = FALSE,
+         tl.pos = "td", 
+         tl.cex = 0.3,
+         tl.col = "black",
+         method = "color",
+         type = "upper")
+#write.csv(corr, file = "210216_correlations.csv")
+```
+
+## Univariate Analysis - Continuous
+```{r}
+univariate_analysis_continuous_list <- c("population_adjusted_cumulative_cases_per_100k", "population_adjusted_new_cases_per_100k", "population_adjusted_new_deaths_per_100k", "transit_stations_percent_change_from_baseline", "unemployment_rate", "median_income2017", "avg_commute_time", "avg_commute_time_public_transport", "percent_estimate_commuting_to_work_workers_16_years_and_over_car_truck_or_van_drove_alone", "percent_estimate_commuting_to_work_workers_16_years_and_over_car_truck_or_van_carpooled", "percent_estimate_commuting_to_work_workers_16_years_and_over_public_transportation_excluding_taxicab", "percent_estimate_commuting_to_work_workers_16_years_and_over_walked", "percent_estimate_commuting_to_work_workers_16_years_and_over_other_means", "percent_estimate_commuting_to_work_workers_16_years_and_over_worked_at_home", "labour_overall_index_score", "mit_living_wage_2019", "annual_state_gdp_for_2019", "u_s_state_land_area_square_miles", "state_population_per_square_mile", "black", "hispanic", "asian", "senior_population", "male_population", "poverty_rate")
+
+for (var in univariate_analysis_continuous_list) {
+  print(var)
+  print(summary(model <- lmer(workplaces_percent_change_from_baseline ~ current_date + is_after_ffl + p_days_since_ffl + get(var) + (1|state_code) + (1|month),
+                      data = filter(dat, is_weekend == "no"))))
+  print(confint(model))
+  print("**********")
+}
+```
+
+## Univariate analysis - Categorical
+```{r}
+dat[c(58:65)] <- lapply(dat[c(58:65)], function(x) {as.factor(as.character(x))})  ## as.factor() could also be used
+
+dat %<>%
+  mutate(election_results_coding_new = case_when(
+    election_results_coding == "AlllR" ~ "AllR",
+    TRUE ~ election_results_coding
+  ))
+
+dat$election_results_coding_new <- as.factor(dat$election_results_coding_new)
+dat$election_results_coding_new <- relevel(dat$election_results_coding_new , ref = "Tie")
+dat$dominant_sector_bls_feb_2020 <- relevel(as.factor(dat$dominant_sector_bls_feb_2020), ref = "Trade Transportation and Utilities")
+
+for (var in colnames(dat)[c(20, 106, 58:65)]) {
+  print(var)
+  print(summary(model <- lmer(workplaces_percent_change_from_baseline ~ current_date + is_after_ffl + p_days_since_ffl + get(var) + (1|state_code) + (1|month),
+                      data = filter(dat, is_weekend == "no"))))
+  print(confint(model))
+  print("**********")
+}
+```
+
+## Checking Correlations One More Time
+```{r}
+cor_matrix <- cor(dat[,univariate_analysis_continuous_list])
+View(cor_matrix)
+```
+
+
+## Multivariable Categorical and Continuous - Paid Sick Leave, Bivariate Variable Selection
+```{r}
+summary(model <- lmer(workplaces_percent_change_from_baseline ~ current_date + is_after_ffl + p_days_since_ffl + paid_sick_leave + population_adjusted_new_cases_per_100k + population_adjusted_new_deaths_per_100k + unemployment_rate + median_income2017 + avg_commute_time + avg_commute_time_public_transport + labour_overall_index_score + mit_living_wage_2019 + annual_state_gdp_for_2019 + poverty_rate + dominant_sector_bls_feb_2020 + election_results_coding_new+ (1|state_code) + (1|month),
+                      data = filter(dat, is_weekend == "no")))
+
+confint(model)
+```
+
+## Multivariable Categorical and Continuous - Paid Family Leave Leave, Bivariate Variable Selection
+```{r}
+summary(model <- lmer(workplaces_percent_change_from_baseline ~ current_date + is_after_ffl + p_days_since_ffl + paid_family_leave + population_adjusted_new_cases_per_100k + population_adjusted_new_deaths_per_100k + unemployment_rate + median_income2017 + avg_commute_time + avg_commute_time_public_transport + labour_overall_index_score + mit_living_wage_2019 + annual_state_gdp_for_2019 + poverty_rate + dominant_sector_bls_feb_2020 + election_results_coding_new+ (1|state_code) + (1|month),
+                      data = filter(dat, is_weekend == "no")))
+
+confint(model)
+```
+
+## Multivariable Categorical and Continuous - Paid Sick Leave, Table Variables
+```{r}
+View(cor(dat %>% dplyr::select(population_adjusted_new_cases_per_100k, median_income2017, unemployment_rate, black, hispanic, asian, multiple_races , state_population_per_square_mile, senior_population, labour_overall_index_score)))
+# Asian and multiple races correlated -- removing Multiple Races
+
+summary(model <- lmer(workplaces_percent_change_from_baseline ~ current_date + is_after_ffl + p_days_since_ffl + paid_sick_leave + population_adjusted_new_cases_per_100k + median_income2017 + unemployment_rate + labour_overall_index_score + black + hispanic + asian + senior_population + state_population_per_square_mile + (1|state_code) + (1|month), data = filter(dat, is_weekend == "no")))
+
+confint(model)
+```
+
+## Multivariable Categorical and Continuous - Paid Family Leave, Table Variables
+```{r}
+summary(model <- lmer(workplaces_percent_change_from_baseline ~ current_date + is_after_ffl + p_days_since_ffl + paid_family_leave + population_adjusted_new_cases_per_100k + median_income2017 + unemployment_rate + labour_overall_index_score + black + hispanic + asian + senior_population + state_population_per_square_mile + (1|state_code) + (1|month), data = filter(dat, is_weekend == "no")))
+
+confint(model)
+```
+
+# Mediation Analysis
+```{r}
+fit_total_effect <- lmer(population_adjusted_new_cases_per_100k ~ current_date + is_after_ffl + p_days_since_ffl + paid_sick_leave + median_income2017 + unemployment_rate + labour_overall_index_score + black + hispanic + asian + senior_population + state_population_per_square_mile + (1|state_code) + (1|month),
+                      data = filter(dat, is_weekend == "no"))
+summary(fit_total_effect) #p= 0.30
+
+#Need to add lme4:: to get mediation model to run
+fit_mediator <- lme4::lmer(workplaces_percent_change_from_baseline ~ current_date + is_after_ffl + p_days_since_ffl + paid_sick_leave + median_income2017 + unemployment_rate + labour_overall_index_score + black + hispanic + asian + senior_population + state_population_per_square_mile + (1|state_code) + (1|month),
+                      data = filter(dat, is_weekend == "no"))
+summary(fit_mediator) #p = 0.12
+confint(fit_mediator)
+
+#Need to add lme4:: to get mediation model to run
+fit_dv <- lme4::lmer(population_adjusted_new_cases_per_100k ~ current_date + is_after_ffl + p_days_since_ffl + workplaces_percent_change_from_baseline + median_income2017 + unemployment_rate + labour_overall_index_score + black + hispanic + asian + senior_population + state_population_per_square_mile + (1|state_code) + (1|month),
+                      data = filter(dat, is_weekend == "no"))
+summary(fit_dv)
+confint(fit_dv)
+
+mediation_final <- mediate(fit_mediator, 
+                           fit_dv, 
+                           treat = 'paid_sick_leave',
+                           mediator = 'workplaces_percent_change_from_baseline')
+summary(mediation_final)
+```
+
+# Residential Variable as a Secondary Outcome
+```{r}
+summary(model <- lmer(residential_percent_change_from_baseline ~ current_date + is_after_ffl + p_days_since_ffl + paid_sick_leave + population_adjusted_new_cases_per_100k + median_income2017 + unemployment_rate + labour_overall_index_score + black + hispanic + asian + senior_population + state_population_per_square_mile + (1|state_code) + (1|month),
+                      data = filter(dat, is_weekend == "no")))
+
+confint(model <- lmer(residential_percent_change_from_baseline ~ current_date + is_after_ffl + p_days_since_ffl + paid_sick_leave + population_adjusted_new_cases_per_100k + median_income2017 + unemployment_rate + labour_overall_index_score + black + hispanic + asian + senior_population + state_population_per_square_mile + (1|state_code) + (1|month),
+                      data = filter(dat, is_weekend == "no")))
+
+```
+
+## Visualization
+```{r}
+dat_no_weekend <- dat %>%
+  filter(is_weekend == "no")
+
+dat_no_weekend$predicted_values_new_cases_contcat <- predict(lmer(workplaces_percent_change_from_baseline ~ current_date + is_after_ffl + p_days_since_ffl + paid_sick_leave + population_adjusted_new_cases_per_100k + median_income2017 + unemployment_rate + labour_overall_index_score + black + hispanic + asian + senior_population + state_population_per_square_mile + (1|state_code) + (1|month), data = filter(dat, is_weekend == "no")))
+
+dat_no_weekend %>%
+  mutate(paid_family_leave_plot = case_when(
+    paid_family_leave == "No" ~ "No Paid Family Leave from State",
+    paid_family_leave == "Yes" ~ "Paid Family Leave from State")) %>%
+  ggplot(aes(x = current_date, y = predicted_values_new_cases_contcat, color = paid_family_leave_plot, group = state_code)) +
+  geom_point(color = "grey") +
+  geom_smooth(method = "lm") + 
+  theme_classic() +
+  facet_wrap(~paid_family_leave_plot) +
+  scale_color_nejm() +
+  labs(x = "Date",
+       y = "Predicted New Daily Cases",
+       color = "State-Level Paid Family Leave")
+ggsave("210218_cases_policies_sickleave_predicted_contcat.tiff", width = 7.25, height = 4.51)
+```
